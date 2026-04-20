@@ -10,7 +10,7 @@
 #
 # Usage:
 #   cp docker-compose.gpu.yml.example docker-compose.override.yml
-#   docker-compose up
+#   docker-compose up -d
 #
 # Compose auto-layers docker-compose.override.yml on top of docker-compose.yml.
 

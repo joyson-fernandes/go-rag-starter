@@ -15,12 +15,21 @@
 ```bash
 git clone https://github.com/joyson-fernandes/go-rag-starter.git
 cd go-rag-starter
-docker-compose up
+docker-compose up -d                  # -d = detached; returns to prompt
+docker-compose logs -f ragbot         # watch startup (Ctrl+C to stop watching)
 ```
 
 Wait ~2 minutes on first start — Ollama has to pull two models (`gemma3:4b` for chat, `nomic-embed-text` for embeddings, ~3.3 GB total). Subsequent starts are instant.
 
 Open `http://localhost:8080`. Click the bubble. Ask "how do I swap the LLM?" and you should see a streamed answer citing `03-swap-the-llm.md`.
+
+**Other useful commands:**
+
+- `docker-compose ps` — what's running.
+- `docker-compose logs -f ragbot` — stream one service's logs.
+- `docker-compose restart ragbot` — re-run ragbot after editing `docs/`.
+- `docker-compose down` — stop everything (volumes kept for next run).
+- `docker-compose down -v` — stop and wipe everything, including the vector index.
 
 ## Platform-specific setup
 
@@ -35,7 +44,7 @@ brew install ollama && brew services start ollama
 ollama pull gemma4:26b          # or any chat model from docs/03-swap-the-llm.md
 ollama pull nomic-embed-text
 cp docker-compose.override.yml.example docker-compose.override.yml
-docker-compose up
+docker-compose up -d
 ```
 
 Mac Ollama gets full Metal acceleration (~60 tok/s on M4 Max for a 26B model).
@@ -46,7 +55,7 @@ Docker Desktop + WSL2 + NVIDIA drivers expose the GPU to containers. Enable GPU 
 
 ```bash
 cp docker-compose.gpu.yml.example docker-compose.override.yml
-docker-compose up
+docker-compose up -d
 ```
 
 The override adds `deploy.resources.reservations.devices: [{driver: nvidia, count: all, capabilities: [gpu]}]` to the `ollama` service. No host install needed.
@@ -68,7 +77,7 @@ Install `nvidia-container-toolkit` if you haven't already, then:
 
 ```bash
 cp docker-compose.gpu.yml.example docker-compose.override.yml
-docker-compose up
+docker-compose up -d
 ```
 
 Same override as Windows+GPU — works on any Linux where `docker run --gpus all` works.
@@ -78,7 +87,7 @@ Same override as Windows+GPU — works on any Linux where `docker run --gpus all
 The bundled Ollama works out of the box — Linux has no VM overhead, so CPU inference is tolerable for smaller models (`gemma3:4b`, `llama3.2:3b`). Just:
 
 ```bash
-docker-compose up
+docker-compose up -d
 ```
 
 Alternatively, host-install Ollama (`curl -fsSL https://ollama.com/install.sh | sh`) and use the host-Ollama override — avoids the 3.3 GB container and the double model copy.

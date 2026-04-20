@@ -11,7 +11,8 @@ MIT licensed.
 ```bash
 git clone https://github.com/joyson-fernandes/go-rag-starter.git
 cd go-rag-starter
-docker-compose up
+docker-compose up -d          # -d = detached; come back to your prompt
+docker-compose logs -f ragbot # watch startup + indexing (Ctrl+C to stop watching)
 ```
 
 First start takes ~2 minutes — Ollama pulls two models (~3.3 GB). Subsequent starts are instant.
@@ -21,6 +22,8 @@ Open **http://localhost:8080** in a browser. Click the purple bubble. Ask:
 > *How do I swap Ollama for OpenAI?*
 
 You'll see tokens stream in with a source chip pointing at `03-swap-the-llm.md`. The bot is answering using *its own docs* — that's the self-documenting part.
+
+When you're done: `docker-compose down` (stops + removes containers; volumes kept for the next run).
 
 ### Faster setup (matters on macOS and any no-GPU host)
 
@@ -32,7 +35,7 @@ The bundled container Ollama is CPU-only unless the host gives it GPU access. Tw
 | Windows (no GPU) | same as macOS, download Ollama from ollama.com | Same pain without the GPU |
 | Windows (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | GPU passthrough on the bundled container |
 | Linux (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | Same GPU passthrough |
-| Linux (no GPU) | just `docker-compose up` | CPU is OK without VM overhead |
+| Linux (no GPU) | just `docker-compose up -d` | CPU is OK without VM overhead |
 
 Full per-platform walkthrough in [`docs/00-getting-started.md`](docs/00-getting-started.md).
 
