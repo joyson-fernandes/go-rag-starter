@@ -17,12 +17,37 @@
   const apiBase = (script && script.dataset.api) || window.location.origin;
   const title = (script && script.dataset.title) || 'Ask the Bot';
   const subtitle = (script && script.dataset.subtitle) || 'Answers grounded in the docs';
-  const starterPrompts = [
+  // Full pool of prompts. First four are shown as the initial starter
+  // buttons before the user has asked anything. After every answer, three
+  // *unasked* prompts are surfaced as "try next" suggestions.
+  const promptPool = [
     'How do I replace the corpus?',
     'How do I swap the LLM?',
     'How do I embed this on my site?',
     'What is pgvector?',
+    'How do I customise the system prompt?',
+    'How do I add authentication?',
+    'How do I deploy this to production?',
+    'How do I debug slow responses?',
+    'How should I structure my markdown docs?',
+    'How do I use a smaller model for faster answers?',
   ];
+  const starterPrompts = promptPool.slice(0, 4);
+  const askedPrompts = new Set();
+  const FOLLOWUPS_PER_TURN = 3;
+
+  function pickFollowups() {
+    const remaining = promptPool.filter((p) => !askedPrompts.has(p));
+    if (remaining.length === 0) return [];
+    // Shuffle (Fisher-Yates) so a user who bounces back and forth sees
+    // variety rather than the same three in order every time.
+    const shuffled = remaining.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, FOLLOWUPS_PER_TURN);
+  }
 
   const css = `
   .ragbot-bubble {
@@ -215,6 +240,7 @@
   function send(text) {
     const q = text.trim();
     if (!q || streaming) return;
+    askedPrompts.add(q);
     textarea.value = '';
     streaming = true;
     sendBtn.disabled = true;
@@ -271,6 +297,7 @@
           } else if (ev === 'done') {
             sources = p.sources || sources;
             renderSources(asst.wrap, sources);
+            renderFollowups(asst.wrap);
             streaming = false; sendBtn.disabled = false;
           } else if (ev === 'error') {
             asst.bubble.textContent = `Error: ${p.error || 'unknown'}`;
@@ -312,5 +339,29 @@
       row.appendChild(chip);
     });
     wrap.appendChild(row);
+  }
+
+  function renderFollowups(wrap) {
+    const picks = pickFollowups();
+    if (!picks.length) return;
+    const container = document.createElement('div');
+    container.className = 'ragbot-starter';
+    const label = document.createElement('span');
+    label.className = 'ragbot-sources-label';
+    label.textContent = 'Try next';
+    container.appendChild(label);
+    picks.forEach((p) => {
+      const b = document.createElement('button');
+      b.textContent = p;
+      b.addEventListener('click', () => {
+        // Remove this follow-up block so the old suggestions don't linger
+        // after the user picks one — the next answer will grow its own.
+        container.remove();
+        send(p);
+      });
+      container.appendChild(b);
+    });
+    wrap.appendChild(container);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 })();
