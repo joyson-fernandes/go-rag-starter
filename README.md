@@ -1,109 +1,28 @@
+<div align="center">
+
 # go-rag-starter
 
-A minimal, self-hosted, **self-documenting** RAG help bot. Clone it, run `docker-compose up`, and you have a widget that answers questions about your product — grounded in your own markdown docs, with no API keys and no vendor bills.
+**A self-hosted, self-documenting RAG help bot. Clone it, run one command, get a working chat widget grounded in your own markdown docs.**
 
-MIT licensed.
+[![License](https://img.shields.io/github/license/joyson-fernandes/go-rag-starter?color=blue)](LICENSE)
+[![Go version](https://img.shields.io/github/go-mod/go-version/joyson-fernandes/go-rag-starter)](go.mod)
+[![Last commit](https://img.shields.io/github/last-commit/joyson-fernandes/go-rag-starter)](https://github.com/joyson-fernandes/go-rag-starter/commits/main)
+[![Code size](https://img.shields.io/github/languages/code-size/joyson-fernandes/go-rag-starter)](https://github.com/joyson-fernandes/go-rag-starter)
+[![Stars](https://img.shields.io/github/stars/joyson-fernandes/go-rag-starter?style=flat&logo=github)](https://github.com/joyson-fernandes/go-rag-starter/stargazers)
 
----
+No API keys. No vendor bills. No Kubernetes. ~500 lines of Go, one `docker-compose.yml`, done in 5 minutes.
 
-## 5-minute quickstart
-
-```bash
-git clone https://github.com/joyson-fernandes/go-rag-starter.git
-cd go-rag-starter
-docker-compose up -d          # -d = detached; come back to your prompt
-docker-compose logs -f ragbot # watch startup + indexing (Ctrl+C to stop watching)
-```
-
-First start takes ~2 minutes — Ollama pulls two models (~3.3 GB). Subsequent starts are instant.
-
-Open **http://localhost:8080** in a browser. Click the purple bubble. Ask:
-
-> *How do I swap Ollama for OpenAI?*
-
-You'll see tokens stream in with a source chip pointing at `03-swap-the-llm.md`. The bot is answering using *its own docs* — that's the self-documenting part.
-
-When you're done: `docker-compose down` (stops + removes containers; volumes kept for the next run).
-
-### Faster setup (matters on macOS and any no-GPU host)
-
-The bundled container Ollama is CPU-only unless the host gives it GPU access. Two overrides ship with the repo to cover every case:
-
-| Platform | Command | Why |
-|---|---|---|
-| macOS (any M-series) | `cp docker-compose.override.yml.example docker-compose.override.yml` + install host Ollama | Docker can't reach Metal on Mac |
-| Windows (no GPU) | same as macOS, download Ollama from ollama.com | Same pain without the GPU |
-| Windows (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | GPU passthrough on the bundled container |
-| Linux (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | Same GPU passthrough |
-| Linux (no GPU) | just `docker-compose up -d` | CPU is OK without VM overhead |
-
-Full per-platform walkthrough in [`docs/00-getting-started.md`](docs/00-getting-started.md).
+</div>
 
 ---
 
-## What's in the box
-
-| Piece | Notes |
-|---|---|
-| Go binary | ~500 lines. Stateless. Binds `:8080`. |
-| pgvector Postgres | Stores chunks, vectors, conversations. Via Docker Compose. |
-| Ollama | Local LLM runtime. `gemma3:4b` for chat, `nomic-embed-text` for embeddings. |
-| Widget | One vanilla-JS file served at `/widget.js`. Embed anywhere with `<script src>`. |
-| Demo page | `GET /` renders a minimal page with the widget already loaded. |
-| 9 seed docs | In `docs/`. Both human-readable AND the bot's corpus. Replace with your own. |
-
-No Kubernetes. No Vault. No Helm. No React toolchain. One `docker-compose.yml`, one `.env`, done.
-
----
-
-## Replace the seed corpus
-
-1. Drop your own markdown files into `docs/`. Use H2 (`## `) headings — the chunker splits on them.
-2. `docker-compose build ragbot && docker-compose up -d ragbot`.
-3. On startup the service notices the corpus hash changed and re-embeds everything. ~40 seconds for ~60 chunks.
-
-Either add alongside the starter's own docs (so the bot answers both "how does go-rag-starter work" and "how does *my product* work"), or wipe `docs/` entirely and add only yours.
-
-See `docs/01-replace-the-corpus.md` for the format + writing tips.
-
----
-
-## Embed the widget on any site
-
-```html
-<script src="http://localhost:8080/widget.js"
-        data-api="http://localhost:8080"
-        data-title="Ask Acme"
-        data-subtitle="Answers from the Acme docs"></script>
-```
-
-Framework-agnostic. No build step. Works on Next.js / Nuxt / plain HTML / Wordpress / anything.
-
-See `docs/04-embed-the-widget.md`.
-
----
-
-## Customise
-
-| Want to… | See |
-|---|---|
-| Change how the bot writes | `docs/02-customise-the-prompt.md` |
-| Use OpenAI / Anthropic / Bedrock instead of Ollama | `docs/03-swap-the-llm.md` |
-| Gate access with auth | `docs/05-add-authentication.md` |
-| Run on Kubernetes | `docs/06-deploy-to-kubernetes.md` |
-| Debug something weird | `docs/07-troubleshooting.md` |
-| Understand how it works | `docs/08-architecture.md` |
-
-**Or just run the bot and ask it.** The 9 docs above are the bot's own corpus.
-
----
-
-## Architecture in one diagram
+## What you get
 
 ```
 ┌──── browser ──────────────────────────────────────────────┐
-│  fetch() + ReadableStream  ──POST→  /api/query → SSE      │
-└───────────────────────┬───────────────────────────────────┘
+│  fetch() + ReadableStream                                  │
+│  POST /api/query  →  reads SSE frames                     │
+└───────────────────────┬────────────────────────────────────┘
             ┌───────────▼───────────┐
             │  ragbot  :8080        │  single Go process
             │  1. embed user query  │──→ Ollama
@@ -112,28 +31,172 @@ See `docs/04-embed-the-widget.md`.
             └───────────────────────┘
 ```
 
-- **Retrieval** is hybrid: HNSW vector similarity + `tsvector` full-text search, fused with Reciprocal Rank Fusion in a single SQL CTE.
-- **Generation** streams from Ollama via SSE; the widget renders tokens as they arrive.
-- **Ingest** is idempotent + content-hash-gated: restarts are instant unless the corpus changed.
+A floating chat bubble appears on a built-in demo page. You click it, type a question, and tokens stream in — with a "source chip" pointing at the markdown file each claim came from. The bot is indexed from its own docs, so you can ask "how do I swap Ollama for OpenAI?" and get a real answer the moment it starts.
 
-Details in `docs/08-architecture.md`.
+Replace `docs/*.md` with your own product docs, rebuild, and you have a support widget for your own project.
 
 ---
 
-## Why this exists
+## Quick start
 
-Proprietary support bots (Intercom Fin, Zendesk AI) are expensive and your data has to leave your network. Managed RAG services (kapa.ai, Inkeep) start at hundreds of dollars a month. Meanwhile, a small Postgres + any local LLM + a few hundred lines of Go does the same thing well enough for most support-widget use cases — and costs nothing per query.
+```bash
+git clone https://github.com/joyson-fernandes/go-rag-starter.git
+cd go-rag-starter
+docker-compose up -d
+```
 
-This template is the minimum viable version of that. Half the effort in the original build was spent on 10 specific gotchas (SSE middleware, HTTP/2 buffering, `http.Server.WriteTimeout` killing streams, pgvector missing from the default Postgres image, etc.). Those gotchas are captured up front in `docs/07-troubleshooting.md` so you don't have to hit them.
+First run pulls ~3.6 GB (Ollama models + container images). Subsequent starts are instant. Then open **http://localhost:8080**.
+
+> **On macOS?** The bundled Ollama runs CPU-only (Docker on Mac can't access Metal) and will feel painfully slow. Install Ollama on the host with `brew install ollama && brew services start ollama`, then `cp docker-compose.override.yml.example docker-compose.override.yml` before `docker-compose up -d`. Full per-platform guide in [docs/00-getting-started.md](docs/00-getting-started.md).
 
 ---
 
-## React widget?
+## Features
 
-This starter ships a vanilla-JS widget only. It embeds on any page with one `<script>` tag, no build step. For a React component version, adapt the vanilla JS in `web/widget.js` — the protocol (POST to `/api/query`, read SSE frames, render tokens as they arrive) is the same regardless of framework.
+- **Self-hosted** — runs on your hardware, data never leaves your network.
+- **Self-documenting** — the `docs/` directory is both human onboarding AND the bot's corpus. Replace it to make the bot about your product.
+- **Hybrid retrieval** — pgvector (HNSW) + full-text search (BM25-ish), fused with Reciprocal Rank Fusion in a single SQL CTE.
+- **Streaming UI** — Server-Sent Events; tokens appear as the model generates them.
+- **Framework-agnostic widget** — one `<script src>` tag, no build step, works on plain HTML, Next.js, Nuxt, WordPress, anywhere.
+- **Swappable LLM** — ships with Ollama; adapter shape for OpenAI / Anthropic / Bedrock documented.
+- **Production-hardened** — the 10 real gotchas from the original build are captured up front so you don't hit them.
+- **Single binary** — no gateway, no microservices, no Kubernetes. Go 1.25 + Postgres + Ollama.
+
+---
+
+## Platform setup
+
+| Platform | Command | Why |
+|---|---|---|
+| macOS (any M-series) | Install host Ollama + `cp docker-compose.override.yml.example docker-compose.override.yml` | Docker can't reach Metal |
+| Windows (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | GPU passthrough on bundled Ollama |
+| Windows (no GPU) | Install host Ollama + override (same as macOS) | Same pain without the GPU |
+| Linux (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | GPU passthrough on bundled Ollama |
+| Linux (no GPU) | `docker-compose up -d` | Bundled Ollama is fine without VM overhead |
+
+Full walkthrough: [docs/00-getting-started.md](docs/00-getting-started.md).
+
+---
+
+## Customise
+
+All nine docs below are indexed into the bot's corpus — open them in the chat widget or read them on GitHub.
+
+| Task | Doc |
+|---|---|
+| Replace the seed corpus with your own docs | [01-replace-the-corpus.md](docs/01-replace-the-corpus.md) |
+| Tune the system prompt / bot persona | [02-customise-the-prompt.md](docs/02-customise-the-prompt.md) |
+| Swap Ollama for OpenAI / Anthropic / Bedrock | [03-swap-the-llm.md](docs/03-swap-the-llm.md) |
+| Embed the widget on your own site | [04-embed-the-widget.md](docs/04-embed-the-widget.md) |
+| Add authentication (JWT, API key, X-User-ID) | [05-add-authentication.md](docs/05-add-authentication.md) |
+| Deploy to Kubernetes | [06-deploy-to-kubernetes.md](docs/06-deploy-to-kubernetes.md) |
+| Debug a common issue | [07-troubleshooting.md](docs/07-troubleshooting.md) |
+| Understand the architecture + glossary | [08-architecture.md](docs/08-architecture.md) |
+
+---
+
+## Embed on any site
+
+Three attributes on one `<script>` tag:
+
+```html
+<script src="https://your-bot-host/widget.js"
+        data-api="https://your-bot-host"
+        data-title="Ask Acme"
+        data-subtitle="Answers from the Acme docs"></script>
+```
+
+Framework-agnostic. No build step. Matches Intercom / Stripe Dashboard / GitHub Copilot UX: floating bubble bottom-right, non-modal side panel, streaming tokens with source chips, keyboard-navigable.
+
+---
+
+## Project layout
+
+```
+go-rag-starter/
+├── main.go                             # service entrypoint (~140 lines)
+├── internal/ragbot/                    # the RAG service
+│   ├── chunker.go                      # markdown H2 splitter
+│   ├── ingest.go                       # hash-gated corpus indexer
+│   ├── ollama.go                       # LLM client (Embed + ChatStream)
+│   ├── store.go                        # pgvector hybrid-search SQL
+│   ├── service.go                      # embed → retrieve → generate pipeline
+│   ├── handler.go                      # /api/query (SSE), /widget.js, /
+│   ├── prompt.go                       # system prompt template
+│   └── schema.go                       # DDL (pgvector + tables + indexes)
+├── web/
+│   ├── widget.js                       # vanilla-JS chat widget (~380 lines)
+│   └── index.html                      # built-in demo page served at /
+├── docs/                               # seed corpus (human-readable + bot-queryable)
+│   └── 00..08-*.md
+├── docker-compose.yml                  # postgres + ollama + ragbot
+├── docker-compose.override.yml.example # opt-in: point at host Ollama (macOS)
+├── docker-compose.gpu.yml.example      # opt-in: NVIDIA GPU passthrough
+└── Dockerfile                          # single-stage Go build, distroless runtime
+```
+
+Total: ~1,200 lines of Go, ~380 lines of widget JS, nine seed docs.
+
+---
+
+## FAQ
+
+<details>
+<summary><b>Why Go?</b></summary>
+
+Fast to build, fast to run, trivial to ship as a single static binary. The whole service is one `docker build` away from a ~15 MB distroless image. If you prefer TypeScript/Python/Rust, the pattern (`embed query → hybrid search → stream LLM`) is the same — this starter just makes Go the path of least resistance.
+
+</details>
+
+<details>
+<summary><b>Why not use [LangChain / LlamaIndex / another framework]?</b></summary>
+
+Frameworks add abstractions that usually obscure what's happening. RAG is three pipe-separated steps — chunking, retrieval, generation. You can read the whole service in 30 minutes and know exactly what it does. When something breaks (and it will), you debug actual code, not framework internals.
+
+</details>
+
+<details>
+<summary><b>Does it scale?</b></summary>
+
+pgvector + Postgres handles millions of chunks comfortably. The bottleneck is usually the LLM, not the retrieval. For many concurrent users, front the service with something that does connection pooling and horizontal-scale multiple ragbot replicas behind a load balancer — it's stateless.
+
+</details>
+
+<details>
+<summary><b>Can I use this commercially?</b></summary>
+
+Yes, MIT licensed. Keep the copyright notice. No warranty.
+
+</details>
+
+<details>
+<summary><b>React component version?</b></summary>
+
+Not shipped in v1 — the vanilla-JS widget works everywhere including React apps via `<script>` in your layout. If you want a true React component, adapt `web/widget.js`; the protocol (POST to `/api/query`, read SSE frames, render tokens as they arrive) is framework-independent.
+
+</details>
+
+---
+
+## Contributing
+
+Issues and pull requests welcome. A few things that would help:
+
+- **Cleaner prompt templates** for specific domains (docs sites, e-commerce support, internal wikis).
+- **Adapters for other LLMs** — OpenAI / Anthropic / Bedrock drop-ins in `internal/ragbot/ollama.go` style.
+- **Eval harness** — golden Q&A set runner with LLM-judge scoring.
+- **React / Vue widget packages** on npm with the same protocol.
+
+Keep PRs small and focused; a 10-line fix merges faster than a 500-line refactor.
 
 ---
 
 ## License
 
-MIT. See `LICENSE`. Credit appreciated but not required.
+[MIT](LICENSE) © 2026 Joyson Fernandes.
+
+<div align="center">
+
+If this saves you a weekend, consider [starring the repo](https://github.com/joyson-fernandes/go-rag-starter) — it's the only signal GitHub's algorithm listens to.
+
+</div>
