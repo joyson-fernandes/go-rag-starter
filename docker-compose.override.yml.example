@@ -27,7 +27,7 @@
 #
 # Then:
 #   cp docker-compose.override.yml.example docker-compose.override.yml
-#   docker-compose up
+#   docker-compose up -d
 # ──────────────────────────────────────────────────────────────────────────
 
 services:

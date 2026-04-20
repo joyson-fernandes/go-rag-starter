@@ -67,7 +67,7 @@ Same approach as macOS — install Ollama on the host, point ragbot at it:
 1. Download the Ollama installer from [ollama.com/download](https://ollama.com/download).
 2. `ollama pull gemma3:4b` and `ollama pull nomic-embed-text` in PowerShell.
 3. `copy docker-compose.override.yml.example docker-compose.override.yml`.
-4. `docker-compose up`.
+4. `docker-compose up -d`.
 
 `host.docker.internal` resolves correctly on Windows Docker Desktop.
 
