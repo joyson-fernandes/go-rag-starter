@@ -1,0 +1,34 @@
+# docker-compose.override.yml.example
+#
+# Rename to `docker-compose.override.yml` (no `.example`) to activate.
+# Docker Compose automatically layers `docker-compose.override.yml` on top of
+# `docker-compose.yml` — so anything in here overrides the defaults.
+#
+# ──────────────────────────────────────────────────────────────────────────
+# Use case: macOS users who find the in-container Ollama painfully slow.
+# ──────────────────────────────────────────────────────────────────────────
+# Docker containers on macOS cannot access the Mac's GPU (Metal). The
+# bundled `ollama` service therefore runs on CPU only, which is 5–10× slower
+# than the host's Ollama. Install Ollama directly on your Mac (via
+# `brew install ollama`), pull the models once, and point ragbot at the host
+# Ollama via `host.docker.internal:11434`.
+#
+# Prereqs on the host:
+#   brew install ollama
+#   brew services start ollama
+#   ollama pull gemma4:26b          # or any chat model
+#   ollama pull nomic-embed-text
+#
+# Then copy this file to docker-compose.override.yml and `docker-compose up`.
+# ──────────────────────────────────────────────────────────────────────────
+
+services:
+  ragbot:
+    # Drop the dependency on the (slow, CPU-only) container Ollama.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      OLLAMA_URL: http://host.docker.internal:11434
+      OLLAMA_CHAT_MODEL: gemma4:26b
+      OLLAMA_EMBED_MODEL: nomic-embed-text

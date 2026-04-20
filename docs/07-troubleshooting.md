@@ -2,6 +2,16 @@
 
 Ten real issues that bit during the original build. Each one is a `Symptom → Root cause → Fix`.
 
+## 0. Ollama in Docker on macOS is painfully slow
+
+**Symptom.** You ran `docker-compose up` on a Mac, the bundled Ollama pulled `gemma3:4b` fine, but every chat response takes tens of seconds per token. A 300-token answer takes several minutes.
+
+**Root cause.** Docker Desktop on macOS runs containers in a Linux VM. That VM **cannot access Metal** (Apple's GPU). So the `ollama` container is CPU-only, and CPU inference on a 4B-param model tops out around 5–10 tok/s.
+
+**Fix.** Install Ollama directly on the Mac (`brew install ollama && brew services start ollama`), pull your models, and point the ragbot container at the host Ollama. Copy `docker-compose.override.yml.example` to `docker-compose.override.yml` — that's the one-liner override. The host Ollama gets full Metal acceleration (60+ tok/s on M-series Macs) and the rest of the stack stays in Docker.
+
+This issue is macOS-specific. On Linux with nvidia-container-toolkit, the in-container Ollama can use the host GPU directly.
+
 ## 1. `could not access file "$libdir/vector"` on startup
 
 **Symptom.** Every Postgres-using service crashes on startup with this error from `CREATE EXTENSION vector`.
