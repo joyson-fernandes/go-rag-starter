@@ -22,26 +22,19 @@ Open **http://localhost:8080** in a browser. Click the purple bubble. Ask:
 
 You'll see tokens stream in with a source chip pointing at `03-swap-the-llm.md`. The bot is answering using *its own docs* — that's the self-documenting part.
 
-### macOS users — faster path (GPU-accelerated)
+### Faster setup (matters on macOS and any no-GPU host)
 
-Docker on macOS can't reach the Mac's GPU, so the bundled Ollama runs CPU-only and chat responses take tens of seconds per token. If you're on a Mac, install Ollama directly on the host (it gets full Metal acceleration) and point the starter at it:
+The bundled container Ollama is CPU-only unless the host gives it GPU access. Two overrides ship with the repo to cover every case:
 
-```bash
-# 1. Install Ollama on the host
-brew install ollama && brew services start ollama
+| Platform | Command | Why |
+|---|---|---|
+| macOS (any M-series) | `cp docker-compose.override.yml.example docker-compose.override.yml` + install host Ollama | Docker can't reach Metal on Mac |
+| Windows (no GPU) | same as macOS, download Ollama from ollama.com | Same pain without the GPU |
+| Windows (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | GPU passthrough on the bundled container |
+| Linux (NVIDIA) | `cp docker-compose.gpu.yml.example docker-compose.override.yml` | Same GPU passthrough |
+| Linux (no GPU) | just `docker-compose up` | CPU is OK without VM overhead |
 
-# 2. Pull the models you want (gemma4:26b is a fast default on M-series Macs)
-ollama pull gemma4:26b
-ollama pull nomic-embed-text
-
-# 3. Activate the ready-made override — ragbot will use the host Ollama
-cp docker-compose.override.yml.example docker-compose.override.yml
-
-# 4. Boot the stack
-docker-compose up
-```
-
-On Linux with an NVIDIA GPU you don't need this — `nvidia-container-toolkit` lets the bundled Ollama container use the host GPU directly.
+Full per-platform walkthrough in [`docs/00-getting-started.md`](docs/00-getting-started.md).
 
 ---
 

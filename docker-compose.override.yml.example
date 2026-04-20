@@ -5,21 +5,29 @@
 # `docker-compose.yml` — so anything in here overrides the defaults.
 #
 # ──────────────────────────────────────────────────────────────────────────
-# Use case: macOS users who find the in-container Ollama painfully slow.
-# ──────────────────────────────────────────────────────────────────────────
-# Docker containers on macOS cannot access the Mac's GPU (Metal). The
-# bundled `ollama` service therefore runs on CPU only, which is 5–10× slower
-# than the host's Ollama. Install Ollama directly on your Mac (via
-# `brew install ollama`), pull the models once, and point ragbot at the host
-# Ollama via `host.docker.internal:11434`.
+# Use case: skip the bundled Ollama container and point at an Ollama you
+# installed on the host machine. Typical reasons:
+#
+#   - macOS: Docker containers can't access Metal (Apple's GPU), so the
+#     bundled Ollama is CPU-only and painfully slow.
+#   - Windows without an NVIDIA GPU: same pain as macOS.
+#   - Linux without an NVIDIA GPU: optional — bundled Ollama works, but
+#     a host Ollama saves you the 3.3 GB container + avoids a double copy.
+#
+# If you HAVE an NVIDIA GPU (Linux or Windows/WSL2), use
+# docker-compose.gpu.yml.example instead — it enables GPU passthrough on
+# the bundled container and is simpler.
 #
 # Prereqs on the host:
-#   brew install ollama
-#   brew services start ollama
-#   ollama pull gemma4:26b          # or any chat model
+#   macOS:   brew install ollama && brew services start ollama
+#   Windows: install Ollama from https://ollama.com/download
+#   Linux:   curl -fsSL https://ollama.com/install.sh | sh
+#   ollama pull gemma4:26b          # or any chat model from docs/03-swap-the-llm.md
 #   ollama pull nomic-embed-text
 #
-# Then copy this file to docker-compose.override.yml and `docker-compose up`.
+# Then:
+#   cp docker-compose.override.yml.example docker-compose.override.yml
+#   docker-compose up
 # ──────────────────────────────────────────────────────────────────────────
 
 services:
@@ -32,3 +40,9 @@ services:
       OLLAMA_URL: http://host.docker.internal:11434
       OLLAMA_CHAT_MODEL: gemma4:26b
       OLLAMA_EMBED_MODEL: nomic-embed-text
+    # Linux note: host.docker.internal does NOT resolve by default. The
+    # extra_hosts line below makes it resolve to the host gateway. macOS
+    # and Windows Docker Desktop add this mapping automatically — but it's
+    # harmless to set it everywhere.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

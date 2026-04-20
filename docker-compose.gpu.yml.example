@@ -1,0 +1,25 @@
+# docker-compose.gpu.yml.example
+#
+# Enables GPU passthrough on the bundled `ollama` service. Works on:
+#   - Linux with `nvidia-container-toolkit` installed on the host
+#   - Windows with Docker Desktop + WSL2 + NVIDIA drivers
+#
+# Does NOT work on macOS — Docker Desktop on Mac runs Linux in a hidden VM
+# that can't reach Metal (Apple's GPU). On macOS, install Ollama directly
+# on the host — see docker-compose.override.yml.example.
+#
+# Usage:
+#   cp docker-compose.gpu.yml.example docker-compose.override.yml
+#   docker-compose up
+#
+# Compose auto-layers docker-compose.override.yml on top of docker-compose.yml.
+
+services:
+  ollama:
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
