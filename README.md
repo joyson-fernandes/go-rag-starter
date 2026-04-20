@@ -81,19 +81,6 @@ Framework-agnostic. No build step. Works on Next.js / Nuxt / plain HTML / Wordpr
 
 See `docs/04-embed-the-widget.md`.
 
-### See the integration in action
-
-`testsite/` ships a fake-product landing page ("Acme Invoicing") with the widget embedded via `<script src>`. Spin it up with the `demo` profile:
-
-```bash
-docker-compose --profile demo up -d
-```
-
-- **http://localhost:8080** — bot's own demo page (same origin as the API)
-- **http://localhost:9000** — fake product site with the widget embedded cross-origin
-
-The second URL is the realistic integration — what you'll see when you drop the `<script>` tag onto your real site. Useful for verifying CORS works, the widget renders on top of your content without layout collisions, and the panel stays open while users click around your pages.
-
 ---
 
 ## Customise

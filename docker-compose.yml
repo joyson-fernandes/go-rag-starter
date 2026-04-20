@@ -52,18 +52,6 @@ services:
     ports:
       - "8080:8080"
 
-  # Opt-in: a fake product landing page at http://localhost:9000 with the
-  # widget embedded via <script src>. Demonstrates the cross-origin
-  # integration pattern real users will follow. Activate with:
-  #   docker-compose --profile demo up -d
-  testsite:
-    image: nginx:alpine
-    profiles: ["demo"]
-    ports:
-      - "9000:80"
-    volumes:
-      - ./testsite:/usr/share/nginx/html:ro
-
 volumes:
   pgdata:
   ollamadata:
