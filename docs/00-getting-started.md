@@ -22,36 +22,74 @@ Wait ~2 minutes on first start — Ollama has to pull two models (`gemma3:4b` fo
 
 Open `http://localhost:8080`. Click the bubble. Ask "how do I swap the LLM?" and you should see a streamed answer citing `03-swap-the-llm.md`.
 
-## Point at your own host Ollama (recommended on macOS)
+## Platform-specific setup
 
-Docker Desktop on macOS runs containers in a Linux VM with no access to Metal (Apple's GPU), so the bundled `ollama` service runs on CPU only — roughly 5-10× slower than a host-installed Ollama. Fix: install Ollama on the Mac and point the bot at it.
+The bundled container Ollama is CPU-only unless the host gives it GPU access. Pick the path for your setup.
+
+### macOS (Intel or Apple Silicon)
+
+Docker Desktop on Mac can't reach Metal (Apple's GPU), so the bundled Ollama is painfully slow. Install Ollama on the Mac and point ragbot at it:
 
 ```bash
-# 1. Install Ollama on the host
 brew install ollama && brew services start ollama
-
-# 2. Pull the models you want
 ollama pull gemma4:26b          # or any chat model from docs/03-swap-the-llm.md
 ollama pull nomic-embed-text
-
-# 3. Activate the override — ragbot will talk to the host Ollama
 cp docker-compose.override.yml.example docker-compose.override.yml
-
-# 4. Boot the stack
 docker-compose up
 ```
 
-The override sets:
+Mac Ollama gets full Metal acceleration (~60 tok/s on M4 Max for a 26B model).
 
-- `OLLAMA_URL=http://host.docker.internal:11434` — points ragbot at your Mac's Ollama.
-- `OLLAMA_CHAT_MODEL=gemma4:26b` — default chat model (edit the override file to pick a different one).
-- `OLLAMA_EMBED_MODEL=nomic-embed-text` — embedding model.
+### Windows with NVIDIA GPU
 
-The bundled container Ollama is skipped (the override removes the dependency on it).
+Docker Desktop + WSL2 + NVIDIA drivers expose the GPU to containers. Enable GPU passthrough on the bundled Ollama:
 
-**On Linux with an NVIDIA GPU** you don't need the override — install `nvidia-container-toolkit`, add `deploy.resources.reservations.devices` to the `ollama` service in `docker-compose.yml`, and the bundled container gets GPU access directly.
+```bash
+cp docker-compose.gpu.yml.example docker-compose.override.yml
+docker-compose up
+```
 
-**On Linux without a GPU** the bundled Ollama works fine for small models (`gemma3:4b`, `llama3.2:3b`) — CPU is faster on Linux than inside Docker-on-Mac because there's no VM overhead.
+The override adds `deploy.resources.reservations.devices: [{driver: nvidia, count: all, capabilities: [gpu]}]` to the `ollama` service. No host install needed.
+
+### Windows without a GPU
+
+Same approach as macOS — install Ollama on the host, point ragbot at it:
+
+1. Download the Ollama installer from [ollama.com/download](https://ollama.com/download).
+2. `ollama pull gemma3:4b` and `ollama pull nomic-embed-text` in PowerShell.
+3. `copy docker-compose.override.yml.example docker-compose.override.yml`.
+4. `docker-compose up`.
+
+`host.docker.internal` resolves correctly on Windows Docker Desktop.
+
+### Linux with NVIDIA GPU
+
+Install `nvidia-container-toolkit` if you haven't already, then:
+
+```bash
+cp docker-compose.gpu.yml.example docker-compose.override.yml
+docker-compose up
+```
+
+Same override as Windows+GPU — works on any Linux where `docker run --gpus all` works.
+
+### Linux without a GPU
+
+The bundled Ollama works out of the box — Linux has no VM overhead, so CPU inference is tolerable for smaller models (`gemma3:4b`, `llama3.2:3b`). Just:
+
+```bash
+docker-compose up
+```
+
+Alternatively, host-install Ollama (`curl -fsSL https://ollama.com/install.sh | sh`) and use the host-Ollama override — avoids the 3.3 GB container and the double model copy.
+
+## Override env vars
+
+Whichever path you pick, the key settings are:
+
+- `OLLAMA_URL` — where ragbot reaches Ollama. `http://host.docker.internal:11434` for host-installed, `http://ollama:11434` for the bundled container.
+- `OLLAMA_CHAT_MODEL` — any model name that `ollama list` shows.
+- `OLLAMA_EMBED_MODEL` — the embedder; `nomic-embed-text` is the standard default.
 
 ## What just happened
 
