@@ -16,8 +16,11 @@ services:
 
   ollama:
     image: ollama/ollama:latest
-    ports:
-      - "11434:11434"
+    # No host port mapping — ragbot reaches ollama via the compose network
+    # (http://ollama:11434). Uncomment the `ports:` block below if you want
+    # to poke at Ollama directly from your host.
+    # ports:
+    #   - "11434:11434"
     volumes:
       - ollamadata:/root/.ollama
     # Pre-pull the two models on first start. Takes a few minutes the
