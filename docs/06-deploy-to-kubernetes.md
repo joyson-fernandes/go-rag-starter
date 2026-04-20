@@ -67,9 +67,9 @@ Then add your usual Ingress / IngressRoute pointing at the Service.
 - **`OLLAMA_URL`** points at wherever your Ollama runs. If the Ollama host is outside the cluster, make sure the cluster can reach it (network policies, VPC peering).
 - **Streaming responses**: if you have an Ingress that buffers by default, disable it. For Nginx set `proxy_buffering off`; for Traefik it works out of the box; for Cloudflare, text/event-stream is handled correctly automatically.
 
-## Gotchas from the Linkvolt deploy
+## Gotchas specific to K8s deployments
 
-The full implementation this starter is derived from (Linkvolt, the link-in-bio platform at `linkvo.lt`) hit several SSE-specific issues in production. `07-troubleshooting.md` documents them. Most relevant for K8s:
+Most of the generic gotchas are captured in `07-troubleshooting.md`. A few that only bite once you run on Kubernetes:
 
 - Your service's `http.Server` must set `WriteTimeout: 0` (or very long). The default 10s truncates SSE streams mid-answer.
 - CiliumNetworkPolicy default-deny → egress to the Postgres cluster and Ollama must be explicitly allowed.

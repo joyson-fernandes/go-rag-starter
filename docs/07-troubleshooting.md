@@ -1,6 +1,6 @@
 ## Troubleshooting
 
-The 10 real issues we hit while building the full version of this starter (the Linkvolt aichat service). Each one is a `Symptom → Root cause → Fix`.
+Ten real issues that bit during the original build. Each one is a `Symptom → Root cause → Fix`.
 
 ## 1. `could not access file "$libdir/vector"` on startup
 

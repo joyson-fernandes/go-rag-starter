@@ -10,7 +10,7 @@ The bot already honours an optional `X-User-ID` header. If set, conversations ar
 
 Add enforcement at your **ingress** (Traefik, Nginx, Cloudflare Access, Envoy) rather than in the bot itself. The ingress terminates the user's session, validates their identity, and rewrites requests to include `X-User-ID: <their-id>`. The bot trusts anything it receives because it's behind the authed perimeter.
 
-This is what the Linkvolt deploy (which this starter is derived from) does. JWT middleware at the gateway service validates the token and injects `X-User-ID`.
+A common pattern: your ingress (Traefik, Nginx, Cloudflare Access) has a JWT or session validator that sets `X-User-ID` as a trusted header on every request that reaches the bot.
 
 Pros: no changes to the bot code. Works with any identity provider.
 Cons: requires an ingress layer; local-dev bypasses it.
