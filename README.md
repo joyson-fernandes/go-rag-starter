@@ -2,7 +2,7 @@
 
 A minimal, self-hosted, **self-documenting** RAG help bot. Clone it, run `docker-compose up`, and you have a widget that answers questions about your product — grounded in your own markdown docs, with no API keys and no vendor bills.
 
-Extracted from the production Linkvolt implementation. MIT licensed.
+MIT licensed.
 
 ---
 
@@ -105,18 +105,15 @@ Details in `docs/08-architecture.md`.
 
 ## Why this exists
 
-We built a production RAG help bot for **Linkvolt**, a link-in-bio platform. It answers ~30 common setup questions, cites the source doc, and costs £0 per query because it runs on a homelab.
+Proprietary support bots (Intercom Fin, Zendesk AI) are expensive and your data has to leave your network. Managed RAG services (kapa.ai, Inkeep) start at hundreds of dollars a month. Meanwhile, a small Postgres + any local LLM + a few hundred lines of Go does the same thing well enough for most support-widget use cases — and costs nothing per query.
 
-The build took one long session but half the time was spent on 10 specific gotchas (SSE middleware, HTTP/2 buffering, `http.Server.WriteTimeout` killing streams, pgvector missing from the default CNPG image, etc.). Those gotchas are captured in `docs/07-troubleshooting.md` and the long-form writeup:
-
-- **Blog post:** [How I built a self-hosted RAG help bot](https://dev.to/joyson-fernandes/how-i-built-a-self-hosted-rag-help-bot) *(coming soon — link will be updated)*
-- **Production code:** [github.com/joyson-fernandes/linkvolt](https://github.com/joyson-fernandes/linkvolt) — see `internal/aichat/` and `web/src/components/ai-chat/`.
+This template is the minimum viable version of that. Half the effort in the original build was spent on 10 specific gotchas (SSE middleware, HTTP/2 buffering, `http.Server.WriteTimeout` killing streams, pgvector missing from the default Postgres image, etc.). Those gotchas are captured up front in `docs/07-troubleshooting.md` so you don't have to hit them.
 
 ---
 
 ## React widget?
 
-This starter ships a vanilla-JS widget only. If you're on React and want a component set, see `web/src/components/ai-chat/` in the Linkvolt repo linked above — `ChatWidget.tsx`, `ChatPanel.tsx`, `ChatMessage.tsx`. Same SSE protocol, same API, same behaviours.
+This starter ships a vanilla-JS widget only. It embeds on any page with one `<script>` tag, no build step. For a React component version, adapt the vanilla JS in `web/widget.js` — the protocol (POST to `/api/query`, read SSE frames, render tokens as they arrive) is the same regardless of framework.
 
 ---
 

@@ -128,7 +128,7 @@ func envOr(key, fallback string) string {
 
 // withLogging is the whole "middleware chain" — just request logging.
 // No Recoverer/Metrics/Tracing wrappers here to keep the starter simple
-// AND to avoid the Flusher-hiding bug that bit the full Linkvolt build.
+// AND to avoid the Flusher-hiding bug covered in docs/07-troubleshooting.md.
 func withLogging(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()

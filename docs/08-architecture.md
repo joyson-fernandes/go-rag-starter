@@ -83,8 +83,6 @@ ORDER BY score DESC LIMIT 6;
 
 All of these are a weekend of work each, not months. The starter is the 80% solution — the remaining 20% is adapting to your specific context.
 
-## Credits
+## Further reading
 
-This starter is an extraction of the help-bot built for **Linkvolt**, a link-in-bio platform. The production implementation is open-source at [github.com/joyson-fernandes/linkvolt](https://github.com/joyson-fernandes/linkvolt) (see `internal/aichat/` and `web/src/components/ai-chat/`).
-
-A long-form blog post on the full build is at [dev.to/joyson-fernandes](https://dev.to/joyson-fernandes) — includes the 10 gotchas from this file expanded, plus the benchmarks, system-prompt anatomy, and lessons learned.
+A long-form blog post covering building this end-to-end — system prompt anatomy, model benchmarks behind the default choice, and every gotcha expanded — lives at [dev.to/joyson-fernandes](https://dev.to/joyson-fernandes).
