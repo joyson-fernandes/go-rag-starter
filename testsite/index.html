@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acme Invoicing — freelance invoicing that doesn't suck</title>
+  <style>
+    :root {
+      --bg: #0b0c14;
+      --bg-soft: #141823;
+      --border: #222735;
+      --text: #e7e9f0;
+      --muted: #8a92a6;
+      --accent: #a78bfa;
+      --brand: linear-gradient(135deg, #8b5cf6, #ec4899);
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg); color: var(--text); margin: 0;
+      line-height: 1.6;
+    }
+    .banner {
+      background: linear-gradient(135deg, rgba(139,92,246,0.18), rgba(236,72,153,0.18));
+      border-bottom: 1px solid rgba(139,92,246,0.4);
+      padding: 10px 20px; text-align: center; font-size: 13px; color: var(--text);
+    }
+    .banner strong { color: var(--accent); }
+    .banner code { background: var(--bg-soft); padding: 2px 6px; border-radius: 4px; font-size: 12px; }
+    header {
+      max-width: 960px; margin: 0 auto; padding: 20px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { font-weight: 700; font-size: 18px; }
+    .logo span { background: var(--brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    nav a {
+      color: var(--muted); text-decoration: none; margin-left: 24px; font-size: 14px;
+    }
+    nav a:hover { color: var(--text); }
+    .cta {
+      background: var(--brand); color: white; padding: 8px 16px;
+      border-radius: 8px; font-weight: 500; font-size: 13px;
+    }
+    main { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+    .hero {
+      text-align: center; padding: 60px 0 80px;
+    }
+    .hero h1 {
+      font-size: 52px; margin: 0 0 16px; line-height: 1.1;
+      background: var(--brand); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .hero p { font-size: 18px; color: var(--muted); max-width: 580px; margin: 0 auto 32px; }
+    .hero-cta {
+      display: inline-block; background: var(--brand); color: white;
+      padding: 14px 32px; border-radius: 10px; text-decoration: none; font-weight: 500;
+    }
+    h2 { font-size: 32px; margin: 60px 0 16px; }
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .feature {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 12px; padding: 20px;
+    }
+    .feature h3 { margin: 0 0 8px; font-size: 16px; }
+    .feature p { margin: 0; color: var(--muted); font-size: 14px; }
+    .pricing { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .plan {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 12px; padding: 24px; text-align: center;
+    }
+    .plan.highlight { border-color: var(--accent); }
+    .plan-name { font-size: 14px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
+    .plan-price { font-size: 36px; font-weight: 700; margin: 12px 0; }
+    .plan-price small { font-size: 14px; color: var(--muted); font-weight: 400; }
+    .plan ul { list-style: none; padding: 0; margin: 16px 0; color: var(--muted); font-size: 14px; }
+    .plan li { padding: 4px 0; }
+    .faq-item {
+      background: var(--bg-soft); border: 1px solid var(--border);
+      border-radius: 10px; padding: 16px 20px; margin-bottom: 8px;
+    }
+    .faq-item summary { font-weight: 500; cursor: pointer; }
+    .faq-item[open] summary { margin-bottom: 8px; }
+    .faq-item p { margin: 0; color: var(--muted); font-size: 14px; }
+    .helper-hint {
+      border: 1px dashed rgba(167,139,250,0.5); border-radius: 10px;
+      padding: 16px 20px; margin-top: 32px; font-size: 14px; color: var(--muted);
+    }
+    .helper-hint strong { color: var(--text); }
+    footer {
+      max-width: 960px; margin: 60px auto 40px; padding: 24px;
+      color: var(--muted); font-size: 13px; text-align: center;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 640px) {
+      .features, .pricing { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 36px; }
+      nav a { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="banner">
+    <strong>Widget integration test.</strong>
+    This is a fake product site. The bot you'll see in the bottom-right is served by <code>ragbot</code> on <code>localhost:8080</code> and embedded here via a one-line <code>&lt;script&gt;</code> tag. Because the bot's corpus is the <em>go-rag-starter docs</em> (not Acme's), asking "how do I send an invoice" returns the refusal phrase — that's correct behaviour. Ask it "how do I swap the LLM?" or "what is pgvector?" instead.
+  </div>
+
+  <header>
+    <div class="logo">Acme <span>Invoicing</span></div>
+    <nav>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a class="cta" href="#">Start free trial</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Invoicing that doesn't suck.</h1>
+      <p>Send invoices, track payments, and chase late clients — without spreadsheets, plugins, or a finance degree. Built for freelancers and small agencies.</p>
+      <a class="hero-cta" href="#">Start your 14-day free trial</a>
+    </section>
+
+    <section id="features">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature">
+          <h3>One-click invoices</h3>
+          <p>Pre-filled from your last invoice to a client. Send in seconds, not minutes.</p>
+        </div>
+        <div class="feature">
+          <h3>Auto-chase late payments</h3>
+          <p>Set your reminder schedule once. Acme sends follow-ups in your voice, not a robotic template.</p>
+        </div>
+        <div class="feature">
+          <h3>Multi-currency</h3>
+          <p>Invoice in GBP, charge in USD, pay tax in EUR. Exchange rates fetched daily.</p>
+        </div>
+        <div class="feature">
+          <h3>Time tracking</h3>
+          <p>Start a timer from the menu bar, stop when you're done. Hours roll into the draft invoice.</p>
+        </div>
+        <div class="feature">
+          <h3>Client portal</h3>
+          <p>Clients see outstanding balances, pay by card or bank transfer, and get their own receipt history.</p>
+        </div>
+        <div class="feature">
+          <h3>Export to your accountant</h3>
+          <p>One button, a zip of PDFs + a CSV. Works with Xero, QuickBooks, and Free Agent.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="pricing">
+      <h2>Pricing</h2>
+      <div class="pricing">
+        <div class="plan">
+          <div class="plan-name">Solo</div>
+          <div class="plan-price">£0<small> / month</small></div>
+          <ul>
+            <li>Up to 3 invoices / month</li>
+            <li>1 client</li>
+            <li>Email support</li>
+          </ul>
+        </div>
+        <div class="plan highlight">
+          <div class="plan-name">Pro</div>
+          <div class="plan-price">£12<small> / month</small></div>
+          <ul>
+            <li>Unlimited invoices</li>
+            <li>Unlimited clients</li>
+            <li>Auto-chase, multi-currency</li>
+            <li>Priority support</li>
+          </ul>
+        </div>
+        <div class="plan">
+          <div class="plan-name">Agency</div>
+          <div class="plan-price">£39<small> / month</small></div>
+          <ul>
+            <li>Everything in Pro</li>
+            <li>Up to 5 team members</li>
+            <li>Shared client pool</li>
+            <li>Dedicated onboarding</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="faq">
+      <h2>FAQ</h2>
+      <details class="faq-item">
+        <summary>Is there a free trial on the paid plans?</summary>
+        <p>Yes, 14 days, no card required.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I switch plans later?</summary>
+        <p>Any time. We prorate on the day you switch.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Do you handle tax filings?</summary>
+        <p>No — we generate the reports your accountant needs, but filing is on you.</p>
+      </details>
+      <div class="helper-hint">
+        <strong>Need help?</strong> Click the chat bubble in the bottom-right. The bot was indexed from the go-rag-starter docs, so it'll answer questions about the starter template itself — not about Acme Invoicing. That's the mismatch you'd remove by replacing <code>docs/*.md</code> with your own product docs.
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    © 2026 Acme Invoicing (fictional). This page exists to test the
+    <a href="https://github.com/joyson-fernandes/go-rag-starter" style="color: var(--accent);">go-rag-starter</a>
+    widget embed pattern.
+  </footer>
+
+  <!--
+    The one-line widget embed. Three data-* attributes customise it:
+      data-api       — where ragbot is listening (defaults to window.location.origin)
+      data-title     — the title shown at the top of the chat panel
+      data-subtitle  — small descriptive line under the title
+  -->
+  <script src="http://localhost:8080/widget.js"
+          data-api="http://localhost:8080"
+          data-title="Ask the starter"
+          data-subtitle="Answers grounded in the go-rag-starter docs"></script>
+</body>
+</html>
