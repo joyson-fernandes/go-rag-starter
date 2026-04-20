@@ -22,6 +22,37 @@ Wait ~2 minutes on first start — Ollama has to pull two models (`gemma3:4b` fo
 
 Open `http://localhost:8080`. Click the bubble. Ask "how do I swap the LLM?" and you should see a streamed answer citing `03-swap-the-llm.md`.
 
+## Point at your own host Ollama (recommended on macOS)
+
+Docker Desktop on macOS runs containers in a Linux VM with no access to Metal (Apple's GPU), so the bundled `ollama` service runs on CPU only — roughly 5-10× slower than a host-installed Ollama. Fix: install Ollama on the Mac and point the bot at it.
+
+```bash
+# 1. Install Ollama on the host
+brew install ollama && brew services start ollama
+
+# 2. Pull the models you want
+ollama pull gemma4:26b          # or any chat model from docs/03-swap-the-llm.md
+ollama pull nomic-embed-text
+
+# 3. Activate the override — ragbot will talk to the host Ollama
+cp docker-compose.override.yml.example docker-compose.override.yml
+
+# 4. Boot the stack
+docker-compose up
+```
+
+The override sets:
+
+- `OLLAMA_URL=http://host.docker.internal:11434` — points ragbot at your Mac's Ollama.
+- `OLLAMA_CHAT_MODEL=gemma4:26b` — default chat model (edit the override file to pick a different one).
+- `OLLAMA_EMBED_MODEL=nomic-embed-text` — embedding model.
+
+The bundled container Ollama is skipped (the override removes the dependency on it).
+
+**On Linux with an NVIDIA GPU** you don't need the override — install `nvidia-container-toolkit`, add `deploy.resources.reservations.devices` to the `ollama` service in `docker-compose.yml`, and the bundled container gets GPU access directly.
+
+**On Linux without a GPU** the bundled Ollama works fine for small models (`gemma3:4b`, `llama3.2:3b`) — CPU is faster on Linux than inside Docker-on-Mac because there's no VM overhead.
+
 ## What just happened
 
 1. Docker Compose started three containers: `postgres` (with pgvector), `ollama`, and `ragbot` (the Go service).

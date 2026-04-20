@@ -22,6 +22,27 @@ Open **http://localhost:8080** in a browser. Click the purple bubble. Ask:
 
 You'll see tokens stream in with a source chip pointing at `03-swap-the-llm.md`. The bot is answering using *its own docs* — that's the self-documenting part.
 
+### macOS users — faster path (GPU-accelerated)
+
+Docker on macOS can't reach the Mac's GPU, so the bundled Ollama runs CPU-only and chat responses take tens of seconds per token. If you're on a Mac, install Ollama directly on the host (it gets full Metal acceleration) and point the starter at it:
+
+```bash
+# 1. Install Ollama on the host
+brew install ollama && brew services start ollama
+
+# 2. Pull the models you want (gemma4:26b is a fast default on M-series Macs)
+ollama pull gemma4:26b
+ollama pull nomic-embed-text
+
+# 3. Activate the ready-made override — ragbot will use the host Ollama
+cp docker-compose.override.yml.example docker-compose.override.yml
+
+# 4. Boot the stack
+docker-compose up
+```
+
+On Linux with an NVIDIA GPU you don't need this — `nvidia-container-toolkit` lets the bundled Ollama container use the host GPU directly.
+
 ---
 
 ## What's in the box
