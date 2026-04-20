@@ -18,6 +18,14 @@ No API keys. No vendor bills. No Kubernetes. ~500 lines of Go, one `docker-compo
 
 ## What you get
 
+![go-rag-starter widget streaming an answer with source chips and follow-up prompts](docs/assets/hero.png)
+
+A floating chat bubble appears on a built-in demo page. You click it, type a question, and tokens stream in — with a "source chip" pointing at the markdown file each claim came from. The bot is indexed from its own docs, so you can ask "how do I swap Ollama for OpenAI?" and get a real answer the moment it starts. After each answer, three fresh "Try next" prompts surface below, driving users deeper into the corpus.
+
+Replace `docs/*.md` with your own product docs, rebuild, and you have a support widget for your own project.
+
+### Under the hood
+
 ```
 ┌──── browser ──────────────────────────────────────────────┐
 │  fetch() + ReadableStream                                  │
@@ -30,10 +38,6 @@ No API keys. No vendor bills. No Kubernetes. ~500 lines of Go, one `docker-compo
             │  3. stream LLM tokens │──→ Ollama
             └───────────────────────┘
 ```
-
-A floating chat bubble appears on a built-in demo page. You click it, type a question, and tokens stream in — with a "source chip" pointing at the markdown file each claim came from. The bot is indexed from its own docs, so you can ask "how do I swap Ollama for OpenAI?" and get a real answer the moment it starts.
-
-Replace `docs/*.md` with your own product docs, rebuild, and you have a support widget for your own project.
 
 ---
 
