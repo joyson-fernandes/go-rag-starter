@@ -1,0 +1,5 @@
+/ragbot
+/tmp/
+.env
+*.log
+.DS_Store

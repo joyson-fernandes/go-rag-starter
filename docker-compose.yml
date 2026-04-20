@@ -1,0 +1,54 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      POSTGRES_USER: ragbot
+      POSTGRES_PASSWORD: ragbot
+      POSTGRES_DB: ragbot
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ragbot -d ragbot -q"]
+      interval: 5s
+      retries: 10
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollamadata:/root/.ollama
+    # Pre-pull the two models on first start. Takes a few minutes the
+    # first time (~3 GB for gemma3:4b, ~300 MB for the embedder).
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        /bin/ollama serve &
+        until /bin/ollama list >/dev/null 2>&1; do sleep 1; done
+        /bin/ollama pull gemma3:4b
+        /bin/ollama pull nomic-embed-text
+        wait
+
+  ragbot:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    environment:
+      DB_DSN: postgres://ragbot:ragbot@postgres:5432/ragbot?sslmode=disable
+      OLLAMA_URL: http://ollama:11434
+      OLLAMA_CHAT_MODEL: gemma3:4b
+      OLLAMA_EMBED_MODEL: nomic-embed-text
+      SERVICE_PORT: "8080"
+      PRODUCT_NAME: "go-rag-starter"
+      PRODUCT_BLURB: "a self-hosted RAG help bot template. Ask me about how it works."
+    ports:
+      - "8080:8080"
+
+volumes:
+  pgdata:
+  ollamadata:

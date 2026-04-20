@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>go-rag-starter — self-documenting RAG bot</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0b0c14; color: #e7e9f0; margin: 0; padding: 40px 24px;
+      display: flex; justify-content: center;
+    }
+    main { max-width: 720px; }
+    h1 {
+      background: linear-gradient(135deg, #8b5cf6, #ec4899);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      font-size: 32px; margin: 0 0 8px;
+    }
+    h2 { margin-top: 32px; color: #e7e9f0; }
+    p { line-height: 1.6; color: #b7bfd0; }
+    code { background: #141823; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+    pre {
+      background: #141823; padding: 16px; border-radius: 8px; overflow-x: auto;
+      border: 1px solid #222735; font-size: 13px; line-height: 1.5;
+    }
+    pre code { background: transparent; padding: 0; }
+    ul { color: #b7bfd0; line-height: 1.8; }
+    .hint {
+      background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(236,72,153,0.1));
+      border: 1px solid rgba(139,92,246,0.3);
+      padding: 16px 20px; border-radius: 12px; margin: 24px 0;
+    }
+    a { color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>go-rag-starter</h1>
+    <p>
+      A self-hosted, self-documenting RAG help bot template. You're looking at
+      the built-in demo page. The bot running behind the widget (bottom-right
+      bubble) was indexed from the markdown files in this repo's
+      <code>docs/</code> directory — so it already knows how to answer
+      questions about itself.
+    </p>
+
+    <div class="hint">
+      <strong>Click the bubble</strong> in the bottom-right and try:
+      <ul>
+        <li>"How do I replace the corpus?"</li>
+        <li>"How do I swap Ollama for OpenAI?"</li>
+        <li>"What is pgvector?"</li>
+        <li>"How do I embed this widget on my own site?"</li>
+      </ul>
+    </div>
+
+    <h2>Embed on your own site</h2>
+    <p>One <code>&lt;script&gt;</code> tag, no build step:</p>
+    <pre><code>&lt;script src="http://YOUR-HOST:8080/widget.js"
+        data-api="http://YOUR-HOST:8080"
+        data-title="Ask Acme"
+        data-subtitle="Answers from the Acme docs"&gt;&lt;/script&gt;</code></pre>
+
+    <h2>Replace the corpus</h2>
+    <p>
+      Drop your own markdown files into <code>docs/</code>, rebuild the Docker
+      image, restart. The service hashes the corpus on startup and re-embeds
+      only when it changed. See <code>docs/01-replace-the-corpus.md</code> for
+      the format.
+    </p>
+
+    <h2>Repo</h2>
+    <p>
+      <a href="https://github.com/joyson-fernandes/go-rag-starter">
+        github.com/joyson-fernandes/go-rag-starter
+      </a>
+      · MIT licensed.
+    </p>
+  </main>
+
+  <script src="/widget.js"
+          data-title="Ask the starter"
+          data-subtitle="Answers grounded in docs/"></script>
+</body>
+</html>
