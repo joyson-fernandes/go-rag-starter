@@ -10,7 +10,7 @@
 [![Code size](https://img.shields.io/github/languages/code-size/joyson-fernandes/go-rag-starter)](https://github.com/joyson-fernandes/go-rag-starter)
 [![Stars](https://img.shields.io/github/stars/joyson-fernandes/go-rag-starter?style=flat&logo=github)](https://github.com/joyson-fernandes/go-rag-starter/stargazers)
 
-No API keys. No vendor bills. No Kubernetes. ~500 lines of Go, one `docker-compose.yml`, done in 5 minutes.
+No API keys. No vendor bills. ~500 lines of Go, one `docker-compose.yml`, done in 5 minutes.
 
 </div>
 
